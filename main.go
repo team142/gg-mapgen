@@ -123,13 +123,10 @@ func getMap(mapId int, width int, height int, startX int, startY int) {
 				// tile.TilePrint = 1
 				tile.NoiseValue = noise
 				theMap.Tiles[tileId] = tile
+				// termbox.SetCell(x, y, char, termbox.Attribute(y), termbox.Attribute(tile.Type))
+
 			}
-			
-
-			//Its not displaying Nicely...			
-			//Need to fix it
-			termbox.SetCell(x, y, char, termbox.Attribute(y), termbox.Attribute(tile.NoiseValue))
-
+			termbox.SetCell(x, y, char, termbox.Attribute(y), termbox.Attribute(tile.Type))
 		}
 	}
 	termbox.Flush()
