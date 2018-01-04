@@ -12,6 +12,8 @@ go get .
 go run main.go
 ```
 
+[http://localhost:8080/1](http://localhost:8080/1)
+
 # TODO
 
 + Docker
@@ -21,5 +23,5 @@ go run main.go
 
 # Dependency
 
-+ github.com/aquilax/go-perlin
-+ github.com/nsf/termbox-go
++ [aquilax/go-perlin](github.com/aquilax/go-perlin)
++ [nsf/termbox-go](github.com/nsf/termbox-go)
