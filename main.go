@@ -14,9 +14,9 @@ import (
 )
 
 type Tile struct {
-	X, Y, Type int
-	TilePrint int
-	NoiseValue float64
+	X, Y, TilePrint int
+	Type int			`json:"-"`
+	NoiseValue float64  `json:"-"`
 }
 
 type Map struct {
