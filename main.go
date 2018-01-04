@@ -46,15 +46,7 @@ const (
 )
 
 func getMap(mapId int, width int, height int, startX int, startY int) {
-	fmt.Println("Working")
-	// dict := map[string]int {"foo" : 1, "bar" : 2}
-	// value, ok := dict["baz"]
-	// if ok {
-	// 		fmt.Println("value: ", value)
-	// } else {
-	// 		fmt.Println("key not found")
-	// }
-
+	
 	theMap, ok := allMaps.Maps[mapId];
 	if !ok {
 		//Clean Up
@@ -88,50 +80,55 @@ func getMap(mapId int, width int, height int, startX int, startY int) {
 				// noise = noise%8
 
 				if (noiseFloat <= 1) {
+					//water
+					
+					tile.TilePrint = 1
+
 					noiseFloat = 75
 					//Blue
 				} else if (noiseFloat > 1 && noiseFloat <= 4) {
+					//Beach
+					tile.TilePrint = 2
 					noiseFloat = 70
 					//Green
 				} else if (noiseFloat > 4 && noiseFloat <= 6) {
+					// 1 off beach
+					tile.TilePrint = 2
 					noiseFloat = 145
-					//Green
 				} else if (noiseFloat > 6 && noiseFloat <= 7) {
+					//Mountanous
+					tile.TilePrint = 3
 					noiseFloat = 78
-					//swamp
 				} else if (noiseFloat > 7 && noiseFloat <= 15) {
 					noiseFloat = 3
-					//grey
+					tile.TilePrint = 3
 				} else if (noiseFloat > 15 && noiseFloat <= 25) {
 					noiseFloat = 23
-					//grey
+					tile.TilePrint = 3
 				} else if (noiseFloat > 25 && noiseFloat <= 50) {
 					noiseFloat = 250
-					//grey
+					tile.TilePrint = 3
 				} else {
+					//Mountain
+					tile.TilePrint = 4
 					noiseFloat = 250
 				}
 				_ = char;			
-				// noiseFloat = 180
-				// _ = math.Abs(-1);
 
 				_ = termbox.SetOutputMode(termbox.Output256)
-				// str := []rune(strconv.Itoa(noiseFloat + y))
-				// _ = str
-				// if (len(str) > x) {
-				// 	char = str[x]
-				// }
-				// fmt.Printf("%0.0f\t%0.0f\t%0.4f\n", x, y, noiseFloat)
+
 				tile.X = x
 				tile.Y = y
 				tile.Type = int(noiseFloat)
-				tile.TilePrint = 1
+				// tile.TilePrint = 1
 				tile.NoiseValue = noise
 				theMap.Tiles[tileId] = tile
 			}
-		
 			
-			termbox.SetCell(tile.X, tile.Y, char, termbox.Attribute(tile.Y), termbox.Attribute(tile.NoiseValue))
+
+			//Its not displaying Nicely...			
+			//Need to fix it
+			termbox.SetCell(x, y, char, termbox.Attribute(y), termbox.Attribute(tile.NoiseValue))
 
 		}
 	}
@@ -144,7 +141,7 @@ func generateNewMap() {
 	newMap.Tiles = make(map[string]Tile)
 
 	max := len(allMaps.Maps)
-	fmt.Println(max)
+	// fmt.Println(max)
 	// panic("NO")
 	allMaps.Maps[max + 1] = newMap;
 
