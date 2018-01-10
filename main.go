@@ -41,8 +41,8 @@ const (
 	// div 		= 50
 	// seed  int64 = 100
 
-	defaultHeight = 20
-	defaultWidth = 20
+	defaultHeight = 50
+	defaultWidth = 50
 )
 
 func getMap(mapId int, width int, height int, startX int, startY int) {
