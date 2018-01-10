@@ -197,7 +197,6 @@ func handler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-
 	if "" != os.Getenv("GG_MAP_PATH") {
 		basePath = os.Getenv("GG_MAP_PATH")
 	}
@@ -206,24 +205,26 @@ func main() {
 		baseListener = os.Getenv("GG_MAP_LISTEN")
 	}
 
-	fmt.Println("basePath: ", basePath)
-	fmt.Println("baseListener: ", baseListener)
+	// fmt.Println("basePath: ", basePath)
+	// fmt.Println("baseListener: ", baseListener)
 	http.HandleFunc(basePath, handler)
 	allMaps.Maps = make(map[int]Map)
 	newMap := Map{2, 2, 3, 50, 1, map[string]Tile{}}
 	max := 0
-	fmt.Println(max)
+	// fmt.Println(max)
 	allMaps.Maps[max+1] = newMap
 	//Clean Up
-
 	getMap(max+1, defaultWidth, defaultHeight, 0, 0)
 
 	if terminal.IsTerminal(int(os.Stdout.Fd())) {
 		go http.ListenAndServe(baseListener, nil)
 	} else {
 		http.ListenAndServe(baseListener, nil)
+		//There is no tty, shut down
+		os.Exit()
 	}
 
+	//Everything from here on out, is for termbox
 	// termbox.SetOut
 	err := termbox.Init()
 	if err != nil {
@@ -238,9 +239,6 @@ func main() {
 		}
 	}()
 
-	//Clean Up
-
-	// generateNewMap()
 loop:
 	for {
 		select {
