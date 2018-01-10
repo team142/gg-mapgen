@@ -2,29 +2,32 @@ package main
 
 import (
 	"fmt"
+
 	"github.com/aquilax/go-perlin"
 	"github.com/nsf/termbox-go"
 	// "time"
 	// "math/rand"
-	"strconv"
-	"math"
 	"encoding/json"
+	"math"
+	"strconv"
 
 	"net/http"
+
+	"os"
 )
 
 type Tile struct {
 	X, Y, TilePrint int
-	Type int			`json:"-"`
-	NoiseValue float64  `json:"-"`
+	Type            int     `json:"-"`
+	NoiseValue      float64 `json:"-"`
 }
 
 type Map struct {
-	alpha    	float64
-	beta     	float64
-	n        	int
-	div 		float64
-	seed  		int64
+	alpha float64
+	beta  float64
+	n     int
+	div   float64
+	seed  int64
 	Tiles map[string]Tile
 }
 
@@ -42,15 +45,15 @@ const (
 	// seed  int64 = 100
 
 	defaultHeight = 50
-	defaultWidth = 50
+	defaultWidth  = 50
 )
 
 func getMap(mapId int, width int, height int, startX int, startY int) {
-	
-	theMap, ok := allMaps.Maps[mapId];
+
+	theMap, ok := allMaps.Maps[mapId]
 	if !ok {
 		//Clean Up
-		panic("Map does not exist");
+		panic("Map does not exist")
 	}
 
 	// check if we have generated this part of the map before
@@ -65,47 +68,47 @@ func getMap(mapId int, width int, height int, startX int, startY int) {
 	for y := startY; y < h; y++ {
 		for x := startX; x < w; x++ {
 
-			tileId := strconv.FormatInt(int64(x),10) + ":" +  strconv.FormatInt(int64(y),10);
-			tile, okT := theMap.Tiles[tileId]; 
-			char := rune(' ');
-			
+			tileId := strconv.FormatInt(int64(x), 10) + ":" + strconv.FormatInt(int64(y), 10)
+			tile, okT := theMap.Tiles[tileId]
+			char := rune(' ')
+
 			if !okT {
 				tile = Tile{}
 
 				noiseFloat := p.Noise2D(float64(x)/theMap.div, float64(y)/theMap.div)
 				noise := noiseFloat
-
-				noiseFloat = math.Abs(noiseFloat * theMap.div)+1
+				os.Getenv("GG_MAP_PATH")
+				noiseFloat = math.Abs(noiseFloat*theMap.div) + 1
 				// fmt.Printf("%0.0f\t%0.0f\t%0.4f\n", x, y, noise)
 				// noise = noise%8
 
-				if (noiseFloat <= 1) {
+				if noiseFloat <= 1 {
 					//water
-					
+
 					tile.TilePrint = 1
 
 					noiseFloat = 75
 					//Blue
-				} else if (noiseFloat > 1 && noiseFloat <= 4) {
+				} else if noiseFloat > 1 && noiseFloat <= 4 {
 					//Beach
 					tile.TilePrint = 2
 					noiseFloat = 70
 					//Green
-				} else if (noiseFloat > 4 && noiseFloat <= 6) {
+				} else if noiseFloat > 4 && noiseFloat <= 6 {
 					// 1 off beach
 					tile.TilePrint = 2
 					noiseFloat = 145
-				} else if (noiseFloat > 6 && noiseFloat <= 7) {
+				} else if noiseFloat > 6 && noiseFloat <= 7 {
 					//Mountanous
 					tile.TilePrint = 3
 					noiseFloat = 78
-				} else if (noiseFloat > 7 && noiseFloat <= 15) {
+				} else if noiseFloat > 7 && noiseFloat <= 15 {
 					noiseFloat = 3
 					tile.TilePrint = 3
-				} else if (noiseFloat > 15 && noiseFloat <= 25) {
+				} else if noiseFloat > 15 && noiseFloat <= 25 {
 					noiseFloat = 23
 					tile.TilePrint = 3
-				} else if (noiseFloat > 25 && noiseFloat <= 50) {
+				} else if noiseFloat > 25 && noiseFloat <= 50 {
 					noiseFloat = 250
 					tile.TilePrint = 3
 				} else {
@@ -113,7 +116,7 @@ func getMap(mapId int, width int, height int, startX int, startY int) {
 					tile.TilePrint = 4
 					noiseFloat = 250
 				}
-				_ = char;			
+				_ = char
 
 				_ = termbox.SetOutputMode(termbox.Output256)
 
@@ -134,22 +137,20 @@ func getMap(mapId int, width int, height int, startX int, startY int) {
 
 func generateNewMap() {
 	//Get new Map ID
-	newMap := Map{2 ,2 ,3 ,50 ,1, map[string]Tile{}}
+	newMap := Map{2, 2, 3, 50, 1, map[string]Tile{}}
 	newMap.Tiles = make(map[string]Tile)
 
 	max := len(allMaps.Maps)
 	// fmt.Println(max)
 	// panic("NO")
-	allMaps.Maps[max + 1] = newMap;
+	allMaps.Maps[max+1] = newMap
 
-
-
-	getMap(max + 1, defaultWidth, defaultHeight, 0, 0)
+	getMap(max+1, defaultWidth, defaultHeight, 0, 0)
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
-	
-	mapId, err := strconv.Atoi(r.URL.Path[1:]);
+
+	mapId, err := strconv.Atoi(r.URL.Path[1:])
 	if err != nil {
 
 		// out, err := json.Marshal(allMaps)
@@ -158,25 +159,24 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		// }
 		// fmt.Fprintf(w, "%s", out)
 
-
 		fmt.Fprintf(w, "Cannot use: %s!", r.URL.Path[1:])
-	// fmt.Println(i1)
-    } else {
-		_, ok := allMaps.Maps[mapId];
+		// fmt.Println(i1)
+	} else {
+		_, ok := allMaps.Maps[mapId]
 		if !ok {
 			//Clean Up
 			// panic("Map does not exist");
 			fmt.Fprintf(w, "No Map with id: %s", r.URL.Path[1:])
 		} else {
-			
+
 			getMap(mapId, defaultWidth, defaultHeight, 0, 0)
-			
+
 			//Clean Up
 			theMap2, _ := allMaps.Maps[mapId]
 
 			out, err := json.Marshal(theMap2)
 			if err != nil {
-				panic (err)
+				panic(err)
 			}
 			fmt.Fprintf(w, "%s", out)
 		}
@@ -185,10 +185,21 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func main (){
+func main() {
 
-	http.HandleFunc("/", handler)
-	go http.ListenAndServe(":8080", nil)
+	basePath := "/"
+	baseListener := ":8080"
+
+	if "" != os.Getenv("GG_MAP_PATH") {
+		basePath = os.Getenv("GG_MAP_PATH")
+	}
+
+	if "" != os.Getenv("GG_MAP_LISTEN") {
+		baseListener = os.Getenv("GG_MAP_LISTEN")
+	}
+	http.HandleFunc(basePath, handler)
+
+	go http.ListenAndServe(baseListener, nil)
 
 	allMaps.Maps = make(map[int]Map)
 	// termbox.SetOut
@@ -206,13 +217,13 @@ func main (){
 	}()
 
 	//Clean Up
-	newMap := Map{2 ,2 ,3 ,50 ,1, map[string]Tile{}}
+	newMap := Map{2, 2, 3, 50, 1, map[string]Tile{}}
 	max := 0
 	fmt.Println(max)
-	allMaps.Maps[max + 1] = newMap;
+	allMaps.Maps[max+1] = newMap
 	//Clean Up
 
-	getMap(max + 1, defaultWidth, defaultHeight, 0, 0)
+	getMap(max+1, defaultWidth, defaultHeight, 0, 0)
 
 	// generateNewMap()
 loop:
@@ -222,8 +233,8 @@ loop:
 			if ev.Type == termbox.EventKey && ev.Key == termbox.KeyEsc {
 				break loop
 			}
-		// default:
-		// 	draw()
+			// default:
+			// 	draw()
 			// time.Sleep(10 * time.Millisecond)
 		}
 	}
