@@ -10,6 +10,7 @@ import (
 	"encoding/json"
 	"math"
 	"strconv"
+	"strings"
 
 	"net/http"
 
@@ -17,6 +18,9 @@ import (
 
 	"golang.org/x/crypto/ssh/terminal"
 )
+
+var basePath = "/"
+var baseListener = ":8080"
 
 type Tile struct {
 	X, Y, TilePrint int
@@ -152,7 +156,12 @@ func generateNewMap() {
 
 func handler(w http.ResponseWriter, r *http.Request) {
 
-	mapId, err := strconv.Atoi(r.URL.Path[1:])
+	uri := r.URL.Path[1:]
+	if basePath != "/" {
+		uri = strings.Replace(uri, basePath[1:], "", -1)
+	}
+
+	mapId, err := strconv.Atoi(uri)
 	if err != nil {
 
 		// out, err := json.Marshal(allMaps)
@@ -189,9 +198,6 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 
-	basePath := "/"
-	baseListener := ":8080"
-
 	if "" != os.Getenv("GG_MAP_PATH") {
 		basePath = os.Getenv("GG_MAP_PATH")
 	}
@@ -213,7 +219,6 @@ func main() {
 	getMap(max+1, defaultWidth, defaultHeight, 0, 0)
 
 	if terminal.IsTerminal(int(os.Stdout.Fd())) {
-
 		go http.ListenAndServe(baseListener, nil)
 	} else {
 		http.ListenAndServe(baseListener, nil)
