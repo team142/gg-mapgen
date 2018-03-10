@@ -1,4 +1,4 @@
-# GG Map Generator
+# GG Map Generator (RUST)
 
 
 Listens on 8080. This will be configurable.
