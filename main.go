@@ -56,6 +56,7 @@ const (
 )
 
 func getMap(responseWriter http.ResponseWriter, mapSeed int64, width int, height int, startX int, startY int) {
+	tiles := make(map[string]Tile)
 
 	// theMap, ok := allMaps.Maps[mapID]
 	// if !ok {
@@ -75,7 +76,7 @@ func getMap(responseWriter http.ResponseWriter, mapSeed int64, width int, height
 	for y := startY; y < h; y++ {
 		for x := startX; x < w; x++ {
 
-			// tileID := strconv.FormatInt(int64(x), 10) + ":" + strconv.FormatInt(int64(y), 10)
+			tileID := strconv.FormatInt(int64(x), 10) + ":" + strconv.FormatInt(int64(y), 10)
 			// tile, okT := theMap.Tiles[tileID]
 			char := rune(' ')
 
@@ -131,19 +132,21 @@ func getMap(responseWriter http.ResponseWriter, mapSeed int64, width int, height
 			tile.Y = y
 			tile.Type = int(noiseFloat)
 			tile.NoiseValue = noise
+			tiles[tileID] = tile
 			// theMap.Tiles[tileID] = tile
 
 			// }
-
-			out, err := json.Marshal(tile)
-			if err != nil {
-				panic(err)
-			}
-			fmt.Fprintf(responseWriter, "%s", out)
-
 			termbox.SetCell(x, y, char, termbox.Attribute(y), termbox.Attribute(tile.Type))
 		}
 	}
+
+	out, err := json.Marshal(tiles)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Fprintf(responseWriter, "%s", out)
+
+
 	termbox.Flush()
 }
 
